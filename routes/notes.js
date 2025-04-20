@@ -1,23 +1,24 @@
 const express = require('express')
 const router = express.Router()
 const Note = require('../models/Note')
+const authenticate = require('../middleware/authMiddleware')
 
-router.get('/', async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
     try {
-        const notes = await Note.find({userId: req.query.userId})
+        const notes = await Note.find({ userId: req.user._id })
         res.json(notes)
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
 })
 
-router.get('/:id', getNote, async (req, res) => {
+router.get('/:id', getNote, authenticate, checkOwnership, async (req, res) => {
     res.json({ data: res.note })
 })
 
-router.post('/', async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
     const note = new Note({
-        userId: req.body.userId,
+        userId: req.user._id,
         title: req.body.title,
         content: req.body.content
     })
@@ -30,13 +31,13 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.patch('/:id', getNote, async (req, res) => {
-    if (req.body.userId != null) {
-        res.note.userId = req.body.userId
-    }
+router.patch('/:id', getNote, authenticate, checkOwnership, async (req, res) => {
+
     if (req.body.title != null) {
         res.note.title = req.body.title
     }
+    
+
     if (req.body.content != null) {
         res.note.content = req.body.content
     }
@@ -49,7 +50,7 @@ router.patch('/:id', getNote, async (req, res) => {
     }
 })
 
-router.delete('/:id', getNote, async (req, res) => {
+router.delete('/:id', getNote, authenticate, checkOwnership, async (req, res) => {
     try {
         await res.note.deleteOne()
         res.status(202).json({ message: "note deleted successfully" })
@@ -72,6 +73,17 @@ async function getNote(req, res, next) {
     res.note = note
     next()
 
+}
+
+async function checkOwnership(req, res, next) {
+    try {
+        if (res.note.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).send("You don't have permission to perform this action.")
+        }
+        next()
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
 }
 
 module.exports = router
