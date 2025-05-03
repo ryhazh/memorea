@@ -22,4 +22,23 @@ router.post('/login', async (req, res) => {
     res.json({ token })
 })
 
+router.post('/register', async (req, res) => {
+    try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        const user = new User({
+            email: req.body.email,
+            username: req.body.username,
+            password: hashedPassword
+        });
+
+        await user.save();
+
+        res.status(201).json({ message: 'registered successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Something went wrong', error: err.message });
+    }
+})
+
 module.exports = router
