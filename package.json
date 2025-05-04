@@ -1,14 +1,24 @@
 {
   "name": "memorea",
-  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run devStart --prefix server\""
   },
-  "devDependencies": {
-    "concurrently": "^8.0.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryhazh/memorea.git"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryhazh/memorea/issues"
+  },
+  "homepage": "https://github.com/ryhazh/memorea#readme",
+  "description": "",
   "dependencies": {
-    "@types/react-router-dom": "^5.3.3",
-    "react-router-dom": "^7.5.3"
+    "concurrently": "^9.1.2"
   }
 }
